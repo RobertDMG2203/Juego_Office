@@ -157,39 +157,49 @@ QTabWidget#officeRibbonTabs QTabBar::tab:selected {
 QFrame#officeRibbonPage {
     background: #ffffff;
     border-top: 1px solid #d5dce5;
+    min-height: 136px;
+}
+QScrollArea#officeRibbonScroll {
+    background: #ffffff;
+    border: 0;
+}
+QScrollArea#officeRibbonScroll > QWidget > QWidget {
+    background: #ffffff;
 }
 QFrame#ribbonGroup {
     background: transparent;
     border: 0;
-    min-height: 108px;
+    min-height: 122px;
 }
 QFrame#ribbonSeparator {
     background: #dde3ea;
     min-width: 1px;
     max-width: 1px;
-    margin-top: 8px;
-    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 12px;
 }
 QLabel#ribbonGroupLabel {
     color: #6a7888;
     font-size: 10px;
     font-weight: 650;
-    padding-top: 1px;
+    padding-top: 2px;
 }
 QToolButton#ribbonTool {
     color: #203043;
     background: #ffffff;
     border: 1px solid transparent;
     border-radius: 6px;
-    padding: 4px 5px;
+    padding: 5px 6px;
     text-align: center;
 }
 QToolButton#ribbonTool[size='large'] {
     font-size: 11px;
     font-weight: 650;
+    padding-top: 6px;
+    padding-bottom: 8px;
 }
 QToolButton#ribbonTool[size='small'] {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     text-align: left;
     padding-left: 7px;
@@ -204,11 +214,13 @@ QToolButton#ribbonTool:pressed {
     border-color: #7ea8d6;
 }
 QToolButton#ribbonTool[dummy='true'] {
-    color: #526273;
+    color: #556373;
+    background: #edf1f5;
+    border-color: #d4dbe3;
 }
 QToolButton#ribbonTool[dummy='true']:hover {
-    background: #f8fafc;
-    border-color: #d6dde7;
+    background: #f4f7fa;
+    border-color: #c6d0db;
 }
 QLabel#feedbackGood { color: #b9ffe8; background: #0a3328; border: 1px solid #197458; border-radius: 12px; padding: 9px 14px; font-weight: 750; }
 QLabel#feedbackBad { color: #ffd7ce; background: #3b1918; border: 1px solid #7d3932; border-radius: 12px; padding: 9px 14px; font-weight: 750; }

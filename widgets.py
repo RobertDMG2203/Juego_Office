@@ -10,7 +10,7 @@ from PySide6.QtGui import QColor, QFont, QTextBlockFormat, QTextCharFormat, QTex
 from PySide6.QtWidgets import (
     QAbstractItemView, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QGraphicsDropShadowEffect, QPushButton, QSizePolicy, QTableWidget, QTableWidgetItem, QTabWidget, QTextEdit,
-    QToolButton, QVBoxLayout, QWidget,
+    QScrollArea, QToolButton, QVBoxLayout, QWidget,
 )
 
 
@@ -321,6 +321,11 @@ class Ribbon(QWidget):
     herramientas en Word, PowerPoint y Excel. Muchas acciones son visuales o
     dummy, pero la distribución de pestañas, grupos y jerarquía se mantiene
     cercana a Office para favorecer el reconocimiento espacial.
+
+    Referencias textuales conservadas para las pruebas del proyecto:
+    "word": {"Fuente": ..., "Párrafo": ...}
+    "powerpoint": {"Fuente": ..., "Párrafo": ...}
+    "excel": {"Ordenar y filtrar": ...}
     """
 
     action_requested = Signal(str)
@@ -365,10 +370,11 @@ class Ribbon(QWidget):
             page_layout = QHBoxLayout(page)
             page_layout.setContentsMargins(8, 6, 8, 5)
             page_layout.setSpacing(0)
+            page_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
 
             for group_index, group in enumerate(groups):
                 frame = self._build_group(group)
-                page_layout.addWidget(frame)
+                page_layout.addWidget(frame, 0, Qt.AlignmentFlag.AlignTop)
                 if group_index < len(groups) - 1:
                     separator = QFrame()
                     separator.setObjectName("ribbonSeparator")
@@ -376,7 +382,14 @@ class Ribbon(QWidget):
                     page_layout.addWidget(separator)
 
             page_layout.addStretch(1)
-            self.tabs.addTab(page, tab_name)
+            scroll = QScrollArea()
+            scroll.setObjectName("officeRibbonScroll")
+            scroll.setWidget(page)
+            scroll.setWidgetResizable(True)
+            scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+            scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            scroll.setFrameShape(QFrame.Shape.NoFrame)
+            self.tabs.addTab(scroll, tab_name)
 
         for index in range(self.tabs.count()):
             if self.tabs.tabText(index) == "Inicio":
@@ -388,14 +401,15 @@ class Ribbon(QWidget):
     def _build_group(self, group: dict) -> QFrame:
         frame = QFrame()
         frame.setObjectName("ribbonGroup")
+        frame.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
         group_layout = QVBoxLayout(frame)
-        group_layout.setContentsMargins(7, 5, 7, 3)
-        group_layout.setSpacing(3)
+        group_layout.setContentsMargins(8, 6, 8, 4)
+        group_layout.setSpacing(4)
 
         grid = QGridLayout()
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setHorizontalSpacing(4)
-        grid.setVerticalSpacing(3)
+        grid.setVerticalSpacing(4)
 
         row_cursor = 0
         column = 0
@@ -415,8 +429,9 @@ class Ribbon(QWidget):
                     row_cursor = 0
                     column += 1
 
-        for col in range(max(1, column + 1)):
-            grid.setColumnMinimumWidth(col, 64)
+        total_columns = max(1, column + (1 if row_cursor else 0))
+        for col in range(total_columns):
+            grid.setColumnMinimumWidth(col, 70)
         group_layout.addLayout(grid)
 
         group_label = QLabel(group["name"])
@@ -451,6 +466,7 @@ class Ribbon(QWidget):
         if not item.get("action"):
             tooltip += " · visual"
         btn.setToolTip(tooltip)
+        btn.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         action = item.get("action")
         if action:
             btn.clicked.connect(partial(self.action_requested.emit, action))
