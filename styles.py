@@ -99,25 +99,25 @@ QPushButton.key:pressed, QPushButton.key[active='true'], QPushButton.key[physica
 
 /* ---------- Office simulado ---------- */
 QWidget#officeRibbon {
-    background: #f5f6f8;
-    border: 1px solid #cfd6df;
+    background: #111923;
+    border: 1px solid #314456;
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
 }
 QFrame#officeChrome {
-    background: #eef2f7;
-    border-bottom: 1px solid #d7dde6;
+    background: #16222e;
+    border-bottom: 1px solid #314456;
     min-height: 30px;
 }
 QLabel#officeChromeTitle {
-    color: #5f6f82;
+    color: #b9c9da;
     font-size: 12px;
     font-weight: 700;
 }
 QToolButton#quickAccessTool {
-    background: #ffffff;
-    color: #445363;
-    border: 1px solid #d1d8e0;
+    background: #1c2a37;
+    color: #d8e6f3;
+    border: 1px solid #405669;
     border-radius: 6px;
     padding: 3px 6px;
     min-width: 24px;
@@ -125,15 +125,23 @@ QToolButton#quickAccessTool {
     max-width: 24px;
     max-height: 24px;
 }
-QToolButton#quickAccessTool:hover { background: #f7fbff; border-color: #9fc0df; }
+QToolButton#quickAccessTool:hover {
+    background: #243648;
+    border-color: #5d87a8;
+}
+QToolButton#quickAccessTool:pressed {
+    background: #2b4156;
+    color: #e6f1fa;
+    border-color: #79a2c0;
+}
 QTabWidget#officeRibbonTabs::pane {
     border: 0;
-    background: #f5f6f8;
+    background: #111923;
     top: -1px;
 }
 QTabWidget#officeRibbonTabs QTabBar::tab {
-    background: transparent;
-    color: #46566a;
+    background: #16222e;
+    color: #cfdae6;
     border: 0;
     border-bottom: 3px solid transparent;
     padding: 8px 16px 7px 16px;
@@ -141,30 +149,30 @@ QTabWidget#officeRibbonTabs QTabBar::tab {
     font-weight: 650;
 }
 QTabWidget#officeRibbonTabs QTabBar::tab:hover {
-    color: #1f3550;
-    background: rgba(255,255,255,0.8);
+    color: #ffffff;
+    background: #203140;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
 }
 QTabWidget#officeRibbonTabs QTabBar::tab:selected {
-    color: #0f4d8a;
-    background: #ffffff;
-    border-bottom-color: #0f4d8a;
+    color: #ffffff;
+    background: #243646;
+    border-bottom-color: #70d8ff;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     font-weight: 800;
 }
 QFrame#officeRibbonPage {
-    background: #ffffff;
-    border-top: 1px solid #d5dce5;
+    background: #111923;
+    border-top: 1px solid #314456;
     min-height: 136px;
 }
 QScrollArea#officeRibbonScroll {
-    background: #ffffff;
+    background: #111923;
     border: 0;
 }
 QScrollArea#officeRibbonScroll > QWidget > QWidget {
-    background: #ffffff;
+    background: #111923;
 }
 QFrame#ribbonGroup {
     background: transparent;
@@ -172,55 +180,71 @@ QFrame#ribbonGroup {
     min-height: 122px;
 }
 QFrame#ribbonSeparator {
-    background: #dde3ea;
+    background: #2d4154;
     min-width: 1px;
     max-width: 1px;
     margin-top: 10px;
     margin-bottom: 12px;
 }
 QLabel#ribbonGroupLabel {
-    color: #6a7888;
+    color: #9fb3c7;
     font-size: 10px;
     font-weight: 650;
     padding-top: 2px;
 }
+QToolButton#ribbonTool,
+QToolButton#ribbonTool:hover,
+QToolButton#ribbonTool:pressed,
+QToolButton#ribbonTool:checked {
+    color: #1f2c39;
+}
 QToolButton#ribbonTool {
-    color: #203043;
     background: #ffffff;
-    border: 1px solid transparent;
+    border: 1px solid #d6dde6;
     border-radius: 6px;
-    padding: 5px 6px;
+    padding: 5px 8px;
     text-align: center;
 }
 QToolButton#ribbonTool[size='large'] {
     font-size: 11px;
     font-weight: 650;
-    padding-top: 6px;
-    padding-bottom: 8px;
+    padding-top: 8px;
+    padding-bottom: 10px;
 }
 QToolButton#ribbonTool[size='small'] {
     font-size: 9px;
     font-weight: 600;
-    text-align: left;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
     padding-left: 7px;
     padding-right: 7px;
 }
 QToolButton#ribbonTool:hover {
-    background: #f5faff;
-    border-color: #9ebddc;
+    background: #f3f7fb;
+    border-color: #a8bfd7;
 }
-QToolButton#ribbonTool:pressed {
-    background: #e8f1fb;
-    border-color: #7ea8d6;
+QToolButton#ribbonTool:pressed,
+QToolButton#ribbonTool:checked {
+    background: #dfe8f1;
+    color: #1f2c39;
+    border-color: #90a9c3;
 }
 QToolButton#ribbonTool[dummy='true'] {
-    color: #556373;
-    background: #edf1f5;
-    border-color: #d4dbe3;
+    color: #566575;
+    background: #eff3f7;
+    border-color: #d7dee6;
 }
 QToolButton#ribbonTool[dummy='true']:hover {
-    background: #f4f7fa;
-    border-color: #c6d0db;
+    color: #495867;
+    background: #f5f7fa;
+    border-color: #cad3dd;
+}
+QToolButton#ribbonTool[dummy='true']:pressed,
+QToolButton#ribbonTool[dummy='true']:checked {
+    color: #495867;
+    background: #e7edf3;
+    border-color: #bcc8d4;
 }
 QLabel#feedbackGood { color: #b9ffe8; background: #0a3328; border: 1px solid #197458; border-radius: 12px; padding: 9px 14px; font-weight: 750; }
 QLabel#feedbackBad { color: #ffd7ce; background: #3b1918; border: 1px solid #7d3932; border-radius: 12px; padding: 9px 14px; font-weight: 750; }
@@ -372,73 +396,5 @@ QCheckBox::indicator:hover { border-color: #47dff2; background: #0d2230; }
 QCheckBox::indicator:checked {
     background: #0b8aa7;
     border: 2px solid #68efff;
-}
-"""
-
-# Cinta de Office emulada: mantiene el tema oscuro general, pero organiza las
-# herramientas con la jerarquía visual de las cintas de Word/PowerPoint/Excel.
-APP_STYLE += r"""
-QWidget#officeRibbon { background: transparent; }
-QTabWidget#officeRibbonTabs::pane {
-    border: 1px solid #2b4055;
-    background: #111820;
-    border-radius: 0 10px 10px 10px;
-    top: -1px;
-}
-QTabWidget#officeRibbonTabs QTabBar::tab {
-    background: #0d131a;
-    color: #c4ccd7;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    padding: 8px 15px;
-    margin-right: 1px;
-    border-radius: 0;
-}
-QTabWidget#officeRibbonTabs QTabBar::tab:hover {
-    background: #17212b;
-    color: white;
-}
-QTabWidget#officeRibbonTabs QTabBar::tab:selected {
-    background: #151e28;
-    color: #ffffff;
-    border-bottom: 2px solid #62dff1;
-    font-weight: 750;
-}
-QFrame#officeRibbonPage { background: #111820; }
-QFrame#ribbonGroup {
-    background: #151d26;
-    border: 0;
-    border-right: 1px solid #34404c;
-    border-radius: 5px;
-}
-QLabel#ribbonGroupLabel {
-    color: #8d99a7;
-    background: transparent;
-    font-size: 10px;
-    padding: 1px 5px 0 5px;
-}
-QToolButton#ribbonTool {
-    color: #e7ebf0;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 5px;
-    padding: 5px 6px;
-    min-width: 52px;
-    font-size: 11px;
-    font-weight: 600;
-}
-QToolButton#ribbonTool[large='true'] {
-    font-size: 12px;
-    font-weight: 650;
-    min-width: 68px;
-}
-QToolButton#ribbonTool:hover {
-    background: #25313d;
-    border-color: #435363;
-    color: white;
-}
-QToolButton#ribbonTool:pressed {
-    background: #334353;
-    border-color: #5c7388;
 }
 """

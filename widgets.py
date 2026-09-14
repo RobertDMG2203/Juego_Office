@@ -467,6 +467,7 @@ class Ribbon(QWidget):
             tooltip += " · visual"
         btn.setToolTip(tooltip)
         btn.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        btn.setProperty("centeredText", True)
         action = item.get("action")
         if action:
             btn.clicked.connect(partial(self.action_requested.emit, action))
