@@ -37,7 +37,7 @@ La **matrícula funciona como identificador del progreso local**. El estudiante 
 
 La aplicación registra intentos correctos e incorrectos, tareas completadas, precisión y calificación. Al completar los cuatro niveles puede finalizar la sesión; la salida normal solicita contraseña del profesor. También existe una **Salida profesor** anticipada protegida por contraseña.
 
-La interfaz utiliza un tema oscuro moderno, componentes redondeados y un teclado visual negro estilo gamer con profundidad 3D y retroiluminación cyan. Las **hojas de trabajo simuladas** de Word, PowerPoint y Excel se mantienen blancas para parecerse al entorno real de oficina. Cuando el estudiante presiona una tecla física, su equivalente en pantalla se ilumina para reforzar la asociación visual.
+La interfaz utiliza un tema oscuro moderno, componentes redondeados y un teclado visual negro estilo con profundidad 3D y retroiluminación. Las **hojas de trabajo simuladas** de Word, PowerPoint y Excel se mantienen blancas para parecerse al entorno real de oficina. Cuando el estudiante presiona una tecla física, su equivalente en pantalla se ilumina para reforzar la asociación visual.
 
 El profesor puede decidir desde Configuración si la pista de la esquina superior derecha (atajo esperado o indicación de usar la cinta) se muestra o se oculta durante las misiones.
 
