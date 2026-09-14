@@ -98,23 +98,118 @@ QPushButton.key:pressed, QPushButton.key[active='true'], QPushButton.key[physica
 }
 
 /* ---------- Office simulado ---------- */
-QTabWidget::pane {
-    border: 1px solid #273b52; background: #0b131d; border-radius: 14px;
+QWidget#officeRibbon {
+    background: #f5f6f8;
+    border: 1px solid #cfd6df;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+QFrame#officeChrome {
+    background: #eef2f7;
+    border-bottom: 1px solid #d7dde6;
+    min-height: 30px;
+}
+QLabel#officeChromeTitle {
+    color: #5f6f82;
+    font-size: 12px;
+    font-weight: 700;
+}
+QToolButton#quickAccessTool {
+    background: #ffffff;
+    color: #445363;
+    border: 1px solid #d1d8e0;
+    border-radius: 6px;
+    padding: 3px 6px;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 24px;
+    max-height: 24px;
+}
+QToolButton#quickAccessTool:hover { background: #f7fbff; border-color: #9fc0df; }
+QTabWidget#officeRibbonTabs::pane {
+    border: 0;
+    background: #f5f6f8;
     top: -1px;
 }
-QTabBar::tab {
-    background: #101b28; color: #91a6bd; border: 1px solid #263b52;
-    border-bottom: 0; padding: 10px 19px; margin-right: 3px;
-    border-top-left-radius: 10px; border-top-right-radius: 10px;
+QTabWidget#officeRibbonTabs QTabBar::tab {
+    background: transparent;
+    color: #46566a;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    padding: 8px 16px 7px 16px;
+    margin-right: 2px;
+    font-weight: 650;
 }
-QTabBar::tab:hover { color: #dff8ff; background: #14283a; }
-QTabBar::tab:selected { color: #8ef3ff; background: #0f2d40; border-color: #287b98; font-weight: 750; }
-QToolButton {
-    color: #cbd8e8; background: #101925; border: 1px solid #243951;
-    border-radius: 11px; padding: 8px; min-width: 58px;
+QTabWidget#officeRibbonTabs QTabBar::tab:hover {
+    color: #1f3550;
+    background: rgba(255,255,255,0.8);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
 }
-QToolButton:hover { background: #153047; border-color: #31bdda; color: white; }
-QToolButton:pressed { background: #0d4459; }
+QTabWidget#officeRibbonTabs QTabBar::tab:selected {
+    color: #0f4d8a;
+    background: #ffffff;
+    border-bottom-color: #0f4d8a;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-weight: 800;
+}
+QFrame#officeRibbonPage {
+    background: #ffffff;
+    border-top: 1px solid #d5dce5;
+}
+QFrame#ribbonGroup {
+    background: transparent;
+    border: 0;
+    min-height: 108px;
+}
+QFrame#ribbonSeparator {
+    background: #dde3ea;
+    min-width: 1px;
+    max-width: 1px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+QLabel#ribbonGroupLabel {
+    color: #6a7888;
+    font-size: 10px;
+    font-weight: 650;
+    padding-top: 1px;
+}
+QToolButton#ribbonTool {
+    color: #203043;
+    background: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 4px 5px;
+    text-align: center;
+}
+QToolButton#ribbonTool[size='large'] {
+    font-size: 11px;
+    font-weight: 650;
+}
+QToolButton#ribbonTool[size='small'] {
+    font-size: 10px;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 7px;
+    padding-right: 7px;
+}
+QToolButton#ribbonTool:hover {
+    background: #f5faff;
+    border-color: #9ebddc;
+}
+QToolButton#ribbonTool:pressed {
+    background: #e8f1fb;
+    border-color: #7ea8d6;
+}
+QToolButton#ribbonTool[dummy='true'] {
+    color: #526273;
+}
+QToolButton#ribbonTool[dummy='true']:hover {
+    background: #f8fafc;
+    border-color: #d6dde7;
+}
 QLabel#feedbackGood { color: #b9ffe8; background: #0a3328; border: 1px solid #197458; border-radius: 12px; padding: 9px 14px; font-weight: 750; }
 QLabel#feedbackBad { color: #ffd7ce; background: #3b1918; border: 1px solid #7d3932; border-radius: 12px; padding: 9px 14px; font-weight: 750; }
 

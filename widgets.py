@@ -315,120 +315,161 @@ class KeyboardLevel(QWidget):
 
 
 class Ribbon(QWidget):
-    """Cinta tipo Office con pestañas, grupos, jerarquía visual e iconos de texto.
+    """Cinta visual inspirada en Office.
 
-    No intenta copiar recursos propietarios de Microsoft: emula la organización de
-    la cinta para que el alumno aprenda dónde buscar cada herramienta.
+    La meta es que el alumnado se familiarice con la ubicación típica de las
+    herramientas en Word, PowerPoint y Excel. Muchas acciones son visuales o
+    dummy, pero la distribución de pestañas, grupos y jerarquía se mantiene
+    cercana a Office para favorecer el reconocimiento espacial.
     """
 
     action_requested = Signal(str)
 
-    GROUPS = {
-        "word": {
-            "imprimir": "Archivo",
-            "negrita": "Fuente", "cursiva": "Fuente", "subrayado": "Fuente",
-            "color_fuente": "Fuente", "resaltar": "Fuente", "aumentar_fuente": "Fuente",
-            "izquierda": "Párrafo", "centrar": "Párrafo", "justificar": "Párrafo",
-            "vinetas": "Párrafo", "interlineado": "Párrafo",
-            "tabla": "Tablas", "hipervinculo": "Vínculos", "encabezado": "Encabezado y pie",
-            "columnas": "Configurar página",
-        },
-        "powerpoint": {
-            "nueva_diapositiva": "Diapositivas", "diseno": "Diapositivas", "duplicar": "Diapositivas",
-            "negrita": "Fuente", "centrar": "Párrafo",
-            "insertar_forma": "Ilustraciones", "imagen": "Imágenes",
-            "transicion": "Transición a esta diapositiva", "animacion": "Animación",
-            "alinear_objetos": "Organizar", "enviar_fondo": "Organizar",
-            "presentar": "Iniciar presentación", "presentar_actual": "Iniciar presentación",
-            "notas": "Mostrar",
-        },
-        "excel": {
-            "negrita": "Fuente", "bordes": "Fuente",
-            "moneda": "Número", "porcentaje": "Número", "fecha": "Número",
-            "combinar": "Alineación", "formato_condicional": "Estilos",
-            "autosuma": "Biblioteca de funciones", "promedio": "Biblioteca de funciones",
-            "ordenar": "Ordenar y filtrar", "filtro": "Ordenar y filtrar",
-            "validacion": "Herramientas de datos", "inmovilizar": "Ventana",
-            "grafico": "Gráficos", "tabla_excel": "Tablas",
-        },
-    }
-
-    LARGE_ACTIONS = {
-        "imprimir", "nueva_diapositiva", "insertar_forma", "imagen", "presentar",
-        "autosuma", "grafico", "tabla_excel", "tabla", "encabezado",
-    }
-
-    def __init__(self, tabs: dict[str, list[tuple[str, str, str]]], accent: str, app_kind: str):
+    def __init__(self, tabs: dict[str, list[dict]], accent: str, app_kind: str):
         super().__init__()
         self.setObjectName("officeRibbon")
         self.setProperty("officeApp", app_kind)
-        self.accent = accent
+        self.setProperty("accent", accent)
+
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        chrome = QFrame()
+        chrome.setObjectName("officeChrome")
+        chrome_layout = QHBoxLayout(chrome)
+        chrome_layout.setContentsMargins(10, 5, 10, 5)
+        chrome_layout.setSpacing(6)
+        for symbol, label in (("💾", "Guardar"), ("↶", "Deshacer"), ("↷", "Rehacer")):
+            btn = QToolButton()
+            btn.setObjectName("quickAccessTool")
+            btn.setText(symbol)
+            btn.setToolTip(label)
+            btn.setEnabled(False)
+            chrome_layout.addWidget(btn)
+        chrome_layout.addSpacing(10)
+        title = QLabel("Cinta de opciones")
+        title.setObjectName("officeChromeTitle")
+        chrome_layout.addWidget(title)
+        chrome_layout.addStretch(1)
+        layout.addWidget(chrome)
+
         self.tabs = QTabWidget()
         self.tabs.setObjectName("officeRibbonTabs")
         self.tabs.setDocumentMode(True)
-        group_map = self.GROUPS.get(app_kind, {})
+        self.tabs.setUsesScrollButtons(True)
 
-        for tab_name, tools in tabs.items():
+        for tab_name, groups in tabs.items():
             page = QFrame()
             page.setObjectName("officeRibbonPage")
             page_layout = QHBoxLayout(page)
-            page_layout.setContentsMargins(10, 7, 10, 5)
-            page_layout.setSpacing(4)
+            page_layout.setContentsMargins(8, 6, 8, 5)
+            page_layout.setSpacing(0)
 
-            grouped: dict[str, list[tuple[str, str, str]]] = {}
-            for tool in tools:
-                grouped.setdefault(group_map.get(tool[2], tab_name), []).append(tool)
-
-            for group_name, group_tools in grouped.items():
-                frame = QFrame()
-                frame.setObjectName("ribbonGroup")
-                group_layout = QVBoxLayout(frame)
-                group_layout.setContentsMargins(7, 5, 7, 3)
-                group_layout.setSpacing(3)
-                tools_row = QHBoxLayout()
-                tools_row.setSpacing(3)
-
-                for symbol, label, action in group_tools:
-                    btn = QToolButton()
-                    btn.setObjectName("ribbonTool")
-                    btn.setProperty("large", action in self.LARGE_ACTIONS)
-                    btn.setText(f"{symbol}\n{label}")
-                    btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
-                    btn.setToolTip(label)
-                    btn.setMinimumSize(72 if action in self.LARGE_ACTIONS else 58, 60)
-                    btn.setMaximumHeight(72)
-                    btn.clicked.connect(partial(self.action_requested.emit, action))
-                    tools_row.addWidget(btn)
-
-                group_layout.addLayout(tools_row)
-                group_label = QLabel(group_name)
-                group_label.setObjectName("ribbonGroupLabel")
-                group_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                group_layout.addWidget(group_label)
+            for group_index, group in enumerate(groups):
+                frame = self._build_group(group)
                 page_layout.addWidget(frame)
+                if group_index < len(groups) - 1:
+                    separator = QFrame()
+                    separator.setObjectName("ribbonSeparator")
+                    separator.setFrameShape(QFrame.Shape.VLine)
+                    page_layout.addWidget(separator)
 
             page_layout.addStretch(1)
             self.tabs.addTab(page, tab_name)
 
-        # Inicio es la pestaña de trabajo habitual cuando existe.
         for index in range(self.tabs.count()):
             if self.tabs.tabText(index) == "Inicio":
                 self.tabs.setCurrentIndex(index)
                 break
+
         layout.addWidget(self.tabs)
+
+    def _build_group(self, group: dict) -> QFrame:
+        frame = QFrame()
+        frame.setObjectName("ribbonGroup")
+        group_layout = QVBoxLayout(frame)
+        group_layout.setContentsMargins(7, 5, 7, 3)
+        group_layout.setSpacing(3)
+
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(4)
+        grid.setVerticalSpacing(3)
+
+        row_cursor = 0
+        column = 0
+        for item in group.get("items", []):
+            size = item.get("size", "small")
+            button = self._make_button(item)
+            if size == "large":
+                if row_cursor != 0:
+                    column += 1
+                    row_cursor = 0
+                grid.addWidget(button, 0, column, 3, 1)
+                column += 1
+            else:
+                grid.addWidget(button, row_cursor, column, 1, 1)
+                row_cursor += 1
+                if row_cursor >= 3:
+                    row_cursor = 0
+                    column += 1
+
+        for col in range(max(1, column + 1)):
+            grid.setColumnMinimumWidth(col, 64)
+        group_layout.addLayout(grid)
+
+        group_label = QLabel(group["name"])
+        group_label.setObjectName("ribbonGroupLabel")
+        group_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        group_layout.addWidget(group_label)
+        return frame
+
+    def _make_button(self, item: dict) -> QToolButton:
+        btn = QToolButton()
+        btn.setObjectName("ribbonTool")
+        size = item.get("size", "small")
+        btn.setProperty("size", size)
+        btn.setProperty("dummy", not bool(item.get("action")))
+        btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
+        btn.setAutoRaise(False)
+        btn.setCheckable(False)
+        symbol = item.get("symbol", "□")
+        label = item.get("label", "Herramienta")
+        if size == "large":
+            btn.setText(f"{symbol}\n{label.replace(' ', '\n', 1)}")
+            btn.setMinimumSize(74, 88)
+            btn.setMaximumSize(90, 110)
+        else:
+            compact_label = label if len(label) <= 12 else label.replace(' ', '\n', 1)
+            btn.setText(f"{symbol} {compact_label}")
+            btn.setMinimumSize(66, 26)
+            btn.setMaximumHeight(28)
+        tooltip = label
+        if item.get("shortcut"):
+            tooltip += f" ({item['shortcut']})"
+        if not item.get("action"):
+            tooltip += " · visual"
+        btn.setToolTip(tooltip)
+        action = item.get("action")
+        if action:
+            btn.clicked.connect(partial(self.action_requested.emit, action))
+        else:
+            btn.clicked.connect(lambda checked=False: None)
+        return btn
 
 
 class OfficeLevel(QWidget):
     action_requested = Signal(str)
 
-    def __init__(self, accent: str, app_kind: str, tabs: dict[str, list[tuple[str, str, str]]]):
+    def __init__(self, accent: str, app_kind: str, tabs: dict[str, list[dict]]):
         super().__init__()
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 0, 8, 8)
-        layout.setSpacing(5)
+        layout.setSpacing(0)
         self.appbar = QLabel()
+        self.appbar.setObjectName("officeAppBar")
+        self.appbar.setProperty("officeApp", app_kind)
         self.appbar.setStyleSheet(
             f"background:{accent};color:white;padding:8px 14px;font-weight:700;"
             "border-top-left-radius:8px;border-top-right-radius:8px"
@@ -438,11 +479,10 @@ class OfficeLevel(QWidget):
         self.ribbon.action_requested.connect(self._perform)
         layout.addWidget(self.ribbon)
         self.workspace = QWidget()
+        self.workspace.setObjectName("officeWorkspace")
         layout.addWidget(self.workspace, 1)
 
     def _perform(self, action: str):
-        # Toda herramienta de la cinta puede explorarse visualmente. La misión sólo
-        # avanza cuando action_requested coincide con la actividad actual.
         self.apply_visual(action)
         self.action_requested.emit(action)
 
@@ -463,20 +503,439 @@ def _filter_tabs(tabs: dict[str, list[tuple[str, str, str]]], allowed: set[str])
     return filtered
 
 
+def _btn(symbol: str, label: str, action: str | None = None, size: str = "small", shortcut: str | None = None) -> dict:
+    return {"symbol": symbol, "label": label, "action": action, "size": size, "shortcut": shortcut}
+
+
+def _word_ribbon_tabs() -> dict[str, list[dict]]:
+    return {
+        "Archivo": [
+            {"name": "Documento", "items": [
+                _btn("＋", "Nuevo", None, "large", "Ctrl+N"),
+                _btn("⇪", "Abrir", None, "small", "Ctrl+O"),
+                _btn("💾", "Guardar", None, "small", "Ctrl+S"),
+                _btn("💾", "Guardar como", None, "small", "Ctrl+Shift+S"),
+                _btn("🖨", "Imprimir", "imprimir", "large", "Ctrl+P"),
+                _btn("✕", "Cerrar", None, "small", "Ctrl+W"),
+            ]},
+        ],
+        "Inicio": [
+            {"name": "Portapapeles", "items": [
+                _btn("📋", "Pegar", None, "large", "Ctrl+V"),
+                _btn("✂", "Cortar", None, "small", "Ctrl+X"),
+                _btn("⎘", "Copiar", None, "small", "Ctrl+C"),
+                _btn("🖌", "Copiar formato", None, "small"),
+            ]},
+            {"name": "Fuente", "items": [
+                _btn("Aa", "Fuente", None, "small"),
+                _btn("12", "Tamaño", None, "small"),
+                _btn("A↑", "Aumentar fuente", "aumentar_fuente", "small", "Ctrl+Shift+>"),
+                _btn("A↓", "Disminuir fuente", None, "small"),
+                _btn("B", "Negrita", "negrita", "small", "Ctrl+B / Ctrl+N"),
+                _btn("I", "Cursiva", "cursiva", "small", "Ctrl+I / Ctrl+K"),
+                _btn("U", "Subrayado", "subrayado", "small", "Ctrl+U / Ctrl+S"),
+                _btn("ab", "Tachado", None, "small"),
+                _btn("A▾", "Color de fuente", "color_fuente", "small"),
+                _btn("🖍", "Resaltar", "resaltar", "small"),
+            ]},
+            {"name": "Párrafo", "items": [
+                _btn("•", "Viñetas", "vinetas", "small"),
+                _btn("1.", "Numeración", None, "small"),
+                _btn("≣", "Lista multinivel", None, "small"),
+                _btn("←", "Disminuir sangría", None, "small"),
+                _btn("→", "Aumentar sangría", None, "small"),
+                _btn("⇤", "Alinear izquierda", "izquierda", "small", "Ctrl+L / Ctrl+Q"),
+                _btn("↔", "Centrar", "centrar", "small", "Ctrl+E / Ctrl+T"),
+                _btn("⇥", "Alinear derecha", None, "small"),
+                _btn("☰", "Justificar", "justificar", "small", "Ctrl+J"),
+                _btn("↕", "Interlineado", "interlineado", "small"),
+                _btn("▦", "Bordes", None, "small"),
+                _btn("░", "Sombreado", None, "small"),
+            ]},
+            {"name": "Estilos", "items": [
+                _btn("N", "Normal", None, "large"),
+                _btn("T1", "Título 1", None, "small"),
+                _btn("T2", "Título 2", None, "small"),
+                _btn("É", "Énfasis", None, "small"),
+            ]},
+            {"name": "Edición", "items": [
+                _btn("🔎", "Buscar", None, "large", "Ctrl+F"),
+                _btn("⇄", "Reemplazar", None, "small", "Ctrl+H"),
+                _btn("☑", "Seleccionar", None, "small"),
+            ]},
+        ],
+        "Insertar": [
+            {"name": "Páginas", "items": [
+                _btn("▤", "Portada", None, "large"),
+                _btn("📄", "Página en blanco", None, "small"),
+                _btn("↵", "Salto de página", None, "small"),
+            ]},
+            {"name": "Tablas", "items": [
+                _btn("▦", "Tabla", "tabla", "large"),
+            ]},
+            {"name": "Ilustraciones", "items": [
+                _btn("🖼", "Imágenes", None, "large"),
+                _btn("○", "Formas", None, "small"),
+                _btn("◆", "Iconos", None, "small"),
+            ]},
+            {"name": "Vínculos", "items": [
+                _btn("↗", "Hipervínculo", "hipervinculo", "large", "Ctrl+K"),
+                _btn("🔖", "Marcador", None, "small"),
+                _btn("⇢", "Referencia cruzada", None, "small"),
+            ]},
+            {"name": "Encabezado y pie", "items": [
+                _btn("▤", "Encabezado", "encabezado", "large"),
+                _btn("▁", "Pie de página", None, "small"),
+                _btn("#", "Número de página", None, "small"),
+            ]},
+            {"name": "Texto", "items": [
+                _btn("T", "Cuadro de texto", None, "small"),
+                _btn("A", "WordArt", None, "small"),
+                _btn("L", "Letra capital", None, "small"),
+            ]},
+        ],
+        "Disposición": [
+            {"name": "Configurar página", "items": [
+                _btn("▭", "Márgenes", None, "small"),
+                _btn("↕", "Orientación", None, "small"),
+                _btn("A4", "Tamaño", None, "small"),
+                _btn("▥", "Columnas", "columnas", "large"),
+                _btn("⏎", "Saltos", None, "small"),
+            ]},
+            {"name": "Párrafo", "items": [
+                _btn("↔", "Sangría", None, "small"),
+                _btn("↕", "Espaciado", None, "small"),
+            ]},
+            {"name": "Organizar", "items": [
+                _btn("⇅", "Posición", None, "small"),
+                _btn("⇆", "Ajustar texto", None, "small"),
+                _btn("⤒", "Traer adelante", None, "small"),
+                _btn("⤓", "Enviar atrás", None, "small"),
+            ]},
+        ],
+        "Referencias": [
+            {"name": "Tabla de contenido", "items": [
+                _btn("≡", "Tabla de contenido", None, "large"),
+                _btn("✚", "Agregar texto", None, "small"),
+                _btn("↻", "Actualizar tabla", None, "small"),
+            ]},
+            {"name": "Notas al pie", "items": [
+                _btn("¹", "Insertar nota al pie", None, "small"),
+                _btn("²", "Insertar nota al final", None, "small"),
+            ]},
+        ],
+        "Revisar": [
+            {"name": "Revisión", "items": [
+                _btn("ABC", "Ortografía", None, "large"),
+                _btn("💬", "Comentarios", None, "small"),
+                _btn("✓", "Control de cambios", None, "small"),
+            ]},
+        ],
+        "Vista": [
+            {"name": "Vistas", "items": [
+                _btn("📖", "Modo lectura", None, "small"),
+                _btn("📝", "Diseño de impresión", None, "small"),
+                _btn("🌐", "Diseño web", None, "small"),
+            ]},
+            {"name": "Mostrar", "items": [
+                _btn("☑", "Regla", None, "small"),
+                _btn("☑", "Panel de navegación", None, "small"),
+            ]},
+        ],
+    }
+
+
+def _powerpoint_ribbon_tabs() -> dict[str, list[dict]]:
+    return {
+        "Archivo": [
+            {"name": "Presentación", "items": [
+                _btn("＋", "Nuevo", None, "large", "Ctrl+N"),
+                _btn("⇪", "Abrir", None, "small", "Ctrl+O"),
+                _btn("💾", "Guardar", None, "small", "Ctrl+S"),
+                _btn("🖨", "Imprimir", None, "large", "Ctrl+P"),
+            ]},
+        ],
+        "Inicio": [
+            {"name": "Portapapeles", "items": [
+                _btn("📋", "Pegar", None, "large"),
+                _btn("✂", "Cortar", None, "small"),
+                _btn("⎘", "Copiar", None, "small"),
+                _btn("🖌", "Copiar formato", None, "small"),
+            ]},
+            {"name": "Diapositivas", "items": [
+                _btn("＋", "Nueva diapositiva", "nueva_diapositiva", "large", "Ctrl+M"),
+                _btn("▤", "Diseño", "diseno", "small"),
+                _btn("⟲", "Restablecer", None, "small"),
+                _btn("⧉", "Duplicar", "duplicar", "small", "Ctrl+Shift+D"),
+            ]},
+            {"name": "Fuente", "items": [
+                _btn("Aa", "Fuente", None, "small"),
+                _btn("12", "Tamaño", None, "small"),
+                _btn("B", "Negrita", "negrita", "small", "Ctrl+B / Ctrl+N"),
+                _btn("I", "Cursiva", None, "small"),
+                _btn("U", "Subrayado", None, "small"),
+                _btn("A▾", "Color", None, "small"),
+            ]},
+            {"name": "Párrafo", "items": [
+                _btn("•", "Viñetas", None, "small"),
+                _btn("1.", "Numeración", None, "small"),
+                _btn("↔", "Centrar", "centrar", "small", "Ctrl+E / Ctrl+T"),
+                _btn("☰", "Justificar", None, "small"),
+                _btn("↕", "Interlineado", None, "small"),
+            ]},
+            {"name": "Dibujo", "items": [
+                _btn("○", "Formas", "insertar_forma", "large"),
+                _btn("⇔", "Alinear", "alinear_objetos", "small"),
+                _btn("⤓", "Enviar al fondo", "enviar_fondo", "small"),
+            ]},
+            {"name": "Edición", "items": [
+                _btn("🔎", "Buscar", None, "large"),
+                _btn("⇄", "Reemplazar", None, "small"),
+            ]},
+        ],
+        "Insertar": [
+            {"name": "Tablas", "items": [
+                _btn("▦", "Tabla", None, "large"),
+            ]},
+            {"name": "Imágenes", "items": [
+                _btn("🖼", "Imágenes", "imagen", "large"),
+                _btn("🗂", "Álbum", None, "small"),
+                _btn("◆", "Iconos", None, "small"),
+            ]},
+            {"name": "Ilustraciones", "items": [
+                _btn("○", "Formas", "insertar_forma", "large"),
+                _btn("▨", "SmartArt", None, "small"),
+                _btn("▥", "Gráfico", None, "small"),
+            ]},
+            {"name": "Texto", "items": [
+                _btn("T", "Cuadro de texto", None, "large"),
+                _btn("A", "WordArt", None, "small"),
+                _btn("#", "Encabezado y pie", None, "small"),
+            ]},
+            {"name": "Multimedia", "items": [
+                _btn("🎞", "Video", None, "small"),
+                _btn("🔊", "Audio", None, "small"),
+                _btn("🖥", "Grabación", None, "small"),
+            ]},
+        ],
+        "Diseño": [
+            {"name": "Temas", "items": [
+                _btn("▧", "Temas", None, "large"),
+                _btn("◫", "Variantes", None, "small"),
+                _btn("▣", "Tamaño de diapositiva", None, "small"),
+                _btn("🎨", "Formato del fondo", None, "small"),
+            ]},
+        ],
+        "Transiciones": [
+            {"name": "Vista previa", "items": [
+                _btn("▶", "Vista previa", None, "large"),
+            ]},
+            {"name": "Transición a esta diapositiva", "items": [
+                _btn("↝", "Transición", "transicion", "large"),
+                _btn("⋯", "Opciones", None, "small"),
+            ]},
+            {"name": "Intervalos", "items": [
+                _btn("🖱", "Al hacer clic", None, "small"),
+                _btn("⏱", "Después de", None, "small"),
+            ]},
+        ],
+        "Animaciones": [
+            {"name": "Vista previa", "items": [
+                _btn("▶", "Vista previa", None, "large"),
+            ]},
+            {"name": "Animación", "items": [
+                _btn("✦", "Agregar animación", "animacion", "large"),
+                _btn("☷", "Panel de animación", None, "small"),
+                _btn("↻", "Reordenar", None, "small"),
+            ]},
+            {"name": "Intervalos", "items": [
+                _btn("▷", "Iniciar", None, "small"),
+                _btn("⏲", "Duración", None, "small"),
+                _btn("↺", "Repetir", None, "small"),
+            ]},
+        ],
+        "Presentación": [
+            {"name": "Iniciar presentación", "items": [
+                _btn("▶", "Desde el principio", "presentar", "large", "F5"),
+                _btn("▷", "Desde la actual", "presentar_actual", "large", "Shift+F5"),
+            ]},
+            {"name": "Configurar", "items": [
+                _btn("⚙", "Configurar presentación", None, "small"),
+                _btn("⌲", "Ensayar intervalos", None, "small"),
+                _btn("🖥", "Monitores", None, "small"),
+            ]},
+        ],
+        "Vista": [
+            {"name": "Vistas de presentación", "items": [
+                _btn("▤", "Normal", None, "small"),
+                _btn("☰", "Clasificador", None, "small"),
+                _btn("📖", "Página de notas", "notas", "small"),
+            ]},
+            {"name": "Mostrar", "items": [
+                _btn("☑", "Regla", None, "small"),
+                _btn("☑", "Guías", None, "small"),
+                _btn("☑", "Cuadrícula", None, "small"),
+            ]},
+        ],
+    }
+
+
+def _excel_ribbon_tabs() -> dict[str, list[dict]]:
+    return {
+        "Archivo": [
+            {"name": "Libro", "items": [
+                _btn("＋", "Nuevo", None, "large", "Ctrl+N"),
+                _btn("⇪", "Abrir", None, "small", "Ctrl+O"),
+                _btn("💾", "Guardar", None, "small", "Ctrl+S"),
+                _btn("🖨", "Imprimir", None, "large", "Ctrl+P"),
+            ]},
+        ],
+        "Inicio": [
+            {"name": "Portapapeles", "items": [
+                _btn("📋", "Pegar", None, "large"),
+                _btn("✂", "Cortar", None, "small"),
+                _btn("⎘", "Copiar", None, "small"),
+                _btn("🖌", "Copiar formato", None, "small"),
+            ]},
+            {"name": "Fuente", "items": [
+                _btn("Aa", "Fuente", None, "small"),
+                _btn("12", "Tamaño", None, "small"),
+                _btn("B", "Negrita", "negrita", "small", "Ctrl+B / Ctrl+N"),
+                _btn("I", "Cursiva", None, "small"),
+                _btn("U", "Subrayado", None, "small"),
+                _btn("▦", "Bordes", "bordes", "small"),
+                _btn("🪣", "Relleno", None, "small"),
+                _btn("A▾", "Color fuente", None, "small"),
+            ]},
+            {"name": "Alineación", "items": [
+                _btn("⇔", "Combinar y centrar", "combinar", "large"),
+                _btn("↤", "Izquierda", None, "small"),
+                _btn("↔", "Centrar", None, "small"),
+                _btn("↦", "Derecha", None, "small"),
+                _btn("↕", "Orientación", None, "small"),
+                _btn("⇥", "Ajustar texto", None, "small"),
+            ]},
+            {"name": "Número", "items": [
+                _btn("$", "Moneda", "moneda", "small", "Ctrl+Shift+4"),
+                _btn("%", "Porcentaje", "porcentaje", "small", "Ctrl+Shift+5"),
+                _btn("◴", "Fecha", "fecha", "small"),
+                _btn("0.0", "Formato", None, "small"),
+                _btn("➕", "Aumentar decimales", None, "small"),
+                _btn("➖", "Disminuir decimales", None, "small"),
+            ]},
+            {"name": "Estilos", "items": [
+                _btn("◩", "Formato condicional", "formato_condicional", "large"),
+                _btn("▣", "Formato como tabla", "tabla_excel", "small", "Ctrl+T"),
+                _btn("✓", "Estilos de celda", None, "small"),
+            ]},
+            {"name": "Celdas", "items": [
+                _btn("＋", "Insertar", None, "small"),
+                _btn("－", "Eliminar", None, "small"),
+                _btn("▤", "Formato", None, "small"),
+            ]},
+            {"name": "Edición", "items": [
+                _btn("Σ", "Autosuma", "autosuma", "large"),
+                _btn("x̄", "Promedio", "promedio", "small"),
+                _btn("A↓Z", "Ordenar", "ordenar", "small"),
+                _btn("▽", "Filtro", "filtro", "small", "Ctrl+Shift+L"),
+                _btn("🔎", "Buscar", None, "small"),
+            ]},
+        ],
+        "Insertar": [
+            {"name": "Tablas", "items": [
+                _btn("▦", "Tabla", "tabla_excel", "large", "Ctrl+T"),
+                _btn("◫", "Tabla dinámica", None, "small"),
+            ]},
+            {"name": "Ilustraciones", "items": [
+                _btn("🖼", "Imágenes", None, "large"),
+                _btn("○", "Formas", None, "small"),
+                _btn("◆", "Iconos", None, "small"),
+            ]},
+            {"name": "Gráficos", "items": [
+                _btn("▥", "Gráfico recomendado", "grafico", "large"),
+                _btn("▤", "Columnas", None, "small"),
+                _btn("◔", "Circular", None, "small"),
+                _btn("╱", "Líneas", None, "small"),
+            ]},
+            {"name": "Minigráficos", "items": [
+                _btn("╱", "Líneas", None, "small"),
+                _btn("▮", "Columnas", None, "small"),
+            ]},
+        ],
+        "Diseño de página": [
+            {"name": "Temas", "items": [
+                _btn("🎨", "Temas", None, "large"),
+                _btn("A", "Fuentes", None, "small"),
+                _btn("🌈", "Colores", None, "small"),
+            ]},
+            {"name": "Configurar página", "items": [
+                _btn("▭", "Márgenes", None, "small"),
+                _btn("↕", "Orientación", None, "small"),
+                _btn("A4", "Tamaño", None, "small"),
+                _btn("🖨", "Área de impresión", None, "small"),
+                _btn("↘", "Saltos", None, "small"),
+            ]},
+        ],
+        "Fórmulas": [
+            {"name": "Biblioteca de funciones", "items": [
+                _btn("Σ", "Autosuma", "autosuma", "large"),
+                _btn("fx", "Insertar función", None, "small"),
+                _btn("💰", "Financieras", None, "small"),
+                _btn("∑", "Matemáticas", None, "small"),
+                _btn("📅", "Fecha y hora", None, "small"),
+            ]},
+            {"name": "Nombres definidos", "items": [
+                _btn("🏷", "Asignar nombre", None, "small"),
+                _btn("☰", "Administrador", None, "small"),
+            ]},
+            {"name": "Auditoría de fórmulas", "items": [
+                _btn("→", "Rastrear precedentes", None, "small"),
+                _btn("←", "Rastrear dependientes", None, "small"),
+                _btn("👁", "Evaluar fórmula", None, "small"),
+            ]},
+        ],
+        "Datos": [
+            {"name": "Obtener y transformar", "items": [
+                _btn("⬇", "Obtener datos", None, "large"),
+                _btn("↻", "Actualizar todo", None, "small"),
+            ]},
+            {"name": "Ordenar y filtrar", "items": [
+                _btn("A↓Z", "Ordenar A-Z", "ordenar", "small"),
+                _btn("Z↓A", "Ordenar Z-A", None, "small"),
+                _btn("▽", "Filtro", "filtro", "small", "Ctrl+Shift+L"),
+            ]},
+            {"name": "Herramientas de datos", "items": [
+                _btn("☰", "Texto en columnas", None, "small"),
+                _btn("≠", "Quitar duplicados", None, "small"),
+                _btn("✓", "Validación de datos", "validacion", "small"),
+            ]},
+            {"name": "Previsión", "items": [
+                _btn("📈", "Hoja de previsión", None, "small"),
+            ]},
+        ],
+        "Vista": [
+            {"name": "Vistas del libro", "items": [
+                _btn("▤", "Normal", None, "small"),
+                _btn("📄", "Diseño de página", None, "small"),
+                _btn("↘", "Saltos de página", None, "small"),
+            ]},
+            {"name": "Ventana", "items": [
+                _btn("📌", "Inmovilizar", "inmovilizar", "large"),
+                _btn("▥", "Dividir", None, "small"),
+                _btn("▣", "Nueva ventana", None, "small"),
+            ]},
+            {"name": "Mostrar", "items": [
+                _btn("☑", "Líneas de cuadrícula", None, "small"),
+                _btn("☑", "Encabezados", None, "small"),
+                _btn("☑", "Barra de fórmulas", None, "small"),
+            ]},
+        ],
+    }
+
+
 class WordLevel(OfficeLevel):
     def __init__(self, education_level: str = "primaria"):
-        full_tabs = {
-            "Archivo": [("▣", "Imprimir", "imprimir")],
-            "Inicio": [
-                ("B", "Negrita", "negrita"), ("I", "Cursiva", "cursiva"), ("U", "Subrayado", "subrayado"),
-                ("☰", "Izquierda", "izquierda"), ("≡", "Centrar", "centrar"), ("☷", "Justificar", "justificar"),
-                ("•", "Viñetas", "vinetas"), ("A", "Color", "color_fuente"), ("▰", "Resaltar", "resaltar"),
-                ("A+", "Tamaño", "aumentar_fuente"), ("↕", "Interlineado", "interlineado"),
-            ],
-            "Insertar": [("▦", "Tabla", "tabla"), ("↗", "Vínculo", "hipervinculo"), ("▤", "Encabezado", "encabezado")],
-            "Diseño": [("▥", "Columnas", "columnas")],
-        }
-        super().__init__("#185abd", "word", _filter_tabs(full_tabs, _allowed_actions(education_level, config.TAREAS_WORD_POR_NIVEL)))
+        super().__init__("#185abd", "word", _word_ribbon_tabs())
         self.appbar.setText("W   Documento de práctica — Word")
         outer = QVBoxLayout(self.workspace)
         self.editor = QTextEdit()
@@ -505,44 +964,52 @@ class WordLevel(OfficeLevel):
             elif action == "color_fuente":
                 fmt.setForeground(QColor("#185abd"))
             elif action == "resaltar":
-                fmt.setBackground(QColor("#fff29a"))
+                fmt.setBackground(QColor("#fff59d"))
             elif action == "aumentar_fuente":
-                fmt.setFontPointSize(22)
+                current = cursor.charFormat().fontPointSize() or 18
+                fmt.setFontPointSize(current + 2)
             elif action == "hipervinculo":
                 fmt.setForeground(QColor("#0563c1"))
                 fmt.setFontUnderline(True)
-                fmt.setAnchor(True)
-                fmt.setAnchorHref("https://ejemplo.local")
             cursor.mergeCharFormat(fmt)
-        elif action in {"centrar", "izquierda", "justificar"}:
-            alignment = {
-                "centrar": Qt.AlignmentFlag.AlignCenter,
-                "izquierda": Qt.AlignmentFlag.AlignLeft,
-                "justificar": Qt.AlignmentFlag.AlignJustify,
-            }[action]
-            cursor.select(QTextCursor.SelectionType.Document)
-            block = QTextBlockFormat()
-            block.setAlignment(alignment)
-            cursor.mergeBlockFormat(block)
-        elif action == "vinetas":
-            # createList aplica formato a los párrafos seleccionados sin sustituir el texto.
-            cursor.select(QTextCursor.SelectionType.Document)
-            cursor.createList(QTextListFormat.Style.ListDisc)
-        elif action == "interlineado":
-            cursor.select(QTextCursor.SelectionType.Document)
-            block = QTextBlockFormat()
-            block.setLineHeight(150, QTextBlockFormat.LineHeightTypes.ProportionalHeight.value)
-            cursor.mergeBlockFormat(block)
+        elif action in {"centrar", "izquierda", "justificar", "interlineado", "vinetas"}:
+            block_fmt = QTextBlockFormat()
+            if action == "centrar":
+                block_fmt.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                cursor.mergeBlockFormat(block_fmt)
+            elif action == "izquierda":
+                block_fmt.setAlignment(Qt.AlignmentFlag.AlignLeft)
+                cursor.mergeBlockFormat(block_fmt)
+            elif action == "justificar":
+                block_fmt.setAlignment(Qt.AlignmentFlag.AlignJustify)
+                cursor.mergeBlockFormat(block_fmt)
+            elif action == "interlineado":
+                block_fmt.setLineHeight(170, QTextBlockFormat.LineHeightTypes.ProportionalHeight)
+                cursor.mergeBlockFormat(block_fmt)
+            elif action == "vinetas":
+                if not cursor.hasSelection():
+                    cursor.select(QTextCursor.SelectionType.Document)
+                start = cursor.selectionStart()
+                end = cursor.selectionEnd()
+                cursor.beginEditBlock()
+                cursor.setPosition(start)
+                list_format = QTextListFormat()
+                list_format.setStyle(QTextListFormat.Style.ListDisc)
+                while True:
+                    block_cursor = QTextCursor(cursor.block())
+                    block_cursor.select(QTextCursor.SelectionType.BlockUnderCursor)
+                    if not block_cursor.currentList():
+                        block_cursor.createList(list_format)
+                    if cursor.position() >= end or not cursor.movePosition(QTextCursor.MoveOperation.NextBlock):
+                        break
+                cursor.endEditBlock()
+        elif action == "imprimir":
+            self.editor.setToolTip("Vista previa de impresión abierta")
         elif action == "tabla":
-            cursor.movePosition(QTextCursor.MoveOperation.End)
-            cursor.insertBlock()
-            cursor.insertTable(2, 2)
+            self.editor.append("\n\n| Columna 1 | Columna 2 |\n|-----------|-----------|\n| Dato A    | Dato B    |")
         elif action == "encabezado":
-            cursor.movePosition(QTextCursor.MoveOperation.Start)
-            fmt = QTextCharFormat(); fmt.setFontWeight(QFont.Weight.Bold); fmt.setForeground(QColor("#4b5563"))
-            cursor.insertText("Misión Digital · Documento de práctica\n", fmt)
+            self.editor.setPlainText("Encabezado del documento\n\n" + self.editor.toPlainText())
         elif action == "columnas":
-            # QTextEdit no pagina columnas reales; se representa el cambio sin oscurecer la hoja.
             self.editor.setViewportMargins(18, 0, 18, 0)
             self.editor.setToolTip("Diseño aplicado: dos columnas")
         self.editor.setTextCursor(cursor)
@@ -550,19 +1017,7 @@ class WordLevel(OfficeLevel):
 
 class PowerPointLevel(OfficeLevel):
     def __init__(self, education_level: str = "primaria"):
-        full_tabs = {
-            "Inicio": [
-                ("＋", "Nueva diap.", "nueva_diapositiva"), ("▤", "Diseño", "diseno"),
-                ("B", "Negrita", "negrita"), ("≡", "Centrar", "centrar"), ("⧉", "Duplicar", "duplicar"),
-            ],
-            "Insertar": [("○", "Formas", "insertar_forma"), ("▧", "Imagen", "imagen")],
-            "Transiciones": [("↝", "Transición", "transicion")],
-            "Animaciones": [("✦", "Animación", "animacion")],
-            "Organizar": [("⇔", "Alinear", "alinear_objetos"), ("⇩", "Al fondo", "enviar_fondo")],
-            "Presentación": [("▶", "Desde inicio", "presentar"), ("▷", "Desde actual", "presentar_actual")],
-            "Vista": [("≡", "Notas", "notas")],
-        }
-        super().__init__("#b7472a", "powerpoint", _filter_tabs(full_tabs, _allowed_actions(education_level, config.TAREAS_POWERPOINT_POR_NIVEL)))
+        super().__init__("#b7472a", "powerpoint", _powerpoint_ribbon_tabs())
         self.appbar.setText("P   Presentación de práctica — PowerPoint")
         outer = QHBoxLayout(self.workspace)
         self.thumbs = QVBoxLayout()
@@ -600,7 +1055,8 @@ class PowerPointLevel(OfficeLevel):
     def apply_visual(self, action: str):
         if action in {"nueva_diapositiva", "duplicar"}:
             self._add_thumb()
-            if action == "duplicar": self.subtitle.setText("Diapositiva duplicada")
+            if action == "duplicar":
+                self.subtitle.setText("Diapositiva duplicada")
         elif action == "diseno":
             self.subtitle.setText("Diseño: Título y contenido")
         elif action == "negrita":
@@ -630,18 +1086,7 @@ class PowerPointLevel(OfficeLevel):
 
 class ExcelLevel(OfficeLevel):
     def __init__(self, education_level: str = "primaria"):
-        full_tabs = {
-            "Inicio": [
-                ("B", "Negrita", "negrita"), ("▦", "Bordes", "bordes"), ("$", "Moneda", "moneda"),
-                ("%", "Porcentaje", "porcentaje"), ("⇔", "Combinar", "combinar"), ("◴", "Fecha", "fecha"),
-                ("◩", "Condicional", "formato_condicional"),
-            ],
-            "Fórmulas": [("Σ", "Autosuma", "autosuma"), ("x̄", "Promedio", "promedio")],
-            "Datos": [("A↓Z", "Ordenar", "ordenar"), ("▽", "Filtro", "filtro"), ("✓", "Validación", "validacion")],
-            "Vista": [("▤", "Inmovilizar", "inmovilizar")],
-            "Insertar": [("▥", "Gráfico", "grafico"), ("▦", "Tabla", "tabla_excel")],
-        }
-        super().__init__("#107c41", "excel", _filter_tabs(full_tabs, _allowed_actions(education_level, config.TAREAS_EXCEL_POR_NIVEL)))
+        super().__init__("#107c41", "excel", _excel_ribbon_tabs())
         self.appbar.setText("X   Libro de práctica — Excel")
         outer = QVBoxLayout(self.workspace)
         formula = QHBoxLayout()
