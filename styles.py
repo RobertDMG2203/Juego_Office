@@ -192,15 +192,16 @@ QLabel#ribbonGroupLabel {
     font-weight: 650;
     padding-top: 2px;
 }
+#colores de check
 QToolButton#ribbonTool,
 QToolButton#ribbonTool:hover,
 QToolButton#ribbonTool:pressed,
 QToolButton#ribbonTool:checked {
-    color: #1f2c39;
+    color: #edf5fb;
 }
 QToolButton#ribbonTool {
-    background: #ffffff;
-    border: 1px solid #d6dde6;
+    background: #1b2733;
+    border: 1px solid #34495d;
     border-radius: 6px;
     padding: 5px 8px;
     text-align: center;
@@ -220,31 +221,33 @@ QToolButton#ribbonTool[size='small'] {
     padding-left: 7px;
     padding-right: 7px;
 }
+#botones de herramientas de barra
 QToolButton#ribbonTool:hover {
-    background: #f3f7fb;
-    border-color: #a8bfd7;
+    background: #253747;
+    color: #ffffff;
+    border-color: #547a98;
 }
 QToolButton#ribbonTool:pressed,
 QToolButton#ribbonTool:checked {
-    background: #dfe8f1;
-    color: #1f2c39;
-    border-color: #90a9c3;
+    background: #31485b;
+    color: #ffffff;
+    border-color: #68a8d1;
 }
 QToolButton#ribbonTool[dummy='true'] {
-    color: #566575;
-    background: #eff3f7;
-    border-color: #d7dee6;
+    color: #87939e;
+    background: rgba(115, 125, 135, 42);
+    border-color: #34404b;
 }
 QToolButton#ribbonTool[dummy='true']:hover {
-    color: #495867;
-    background: #f5f7fa;
-    border-color: #cad3dd;
+    color: #9aa5af;
+    background: rgba(125, 135, 145, 58);
+    border-color: #46535f;
 }
 QToolButton#ribbonTool[dummy='true']:pressed,
 QToolButton#ribbonTool[dummy='true']:checked {
-    color: #495867;
-    background: #e7edf3;
-    border-color: #bcc8d4;
+    color: #a0abb5;
+    background: rgba(135, 145, 155, 72);
+    border-color: #53616d;
 }
 QLabel#feedbackGood { color: #b9ffe8; background: #0a3328; border: 1px solid #197458; border-radius: 12px; padding: 9px 14px; font-weight: 750; }
 QLabel#feedbackBad { color: #ffd7ce; background: #3b1918; border: 1px solid #7d3932; border-radius: 12px; padding: 9px 14px; font-weight: 750; }
