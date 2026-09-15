@@ -27,6 +27,9 @@ Los ejercicios son acumulativos: secundaria incluye el contenido de primaria y p
 
 # Experiencia del estudiante
 
+<img width="2559" height="1565" alt="Captura de pantalla 2026-09-14 175530" src="https://github.com/user-attachments/assets/11e67f3f-d373-4ccd-8732-81cffe945522" />
+<img width="1792" height="1088" alt="Captura de pantalla 2026-09-14 175605" src="https://github.com/user-attachments/assets/a6441eba-0791-4fcd-aef5-e80a74d571b4" />
+
 Al iniciar, el estudiante debe registrar:
 
 - nombre completo;
@@ -51,6 +54,10 @@ El panel se divide en cuatro apartados.
 
 ## Dashboard
 
+<img width="1792" height="1088" alt="Captura de pantalla 2026-09-14 175605" src="https://github.com/user-attachments/assets/5648b559-f6fb-4de7-8b41-e40ef7f50a30" />
+
+<img width="1749" height="1213" alt="Captura de pantalla 2026-09-14 175624" src="https://github.com/user-attachments/assets/16971bfd-c409-4f37-a4b7-728456246e5c" />
+
 Lee automáticamente el histórico de sesiones guardado en `resumen_sesiones.csv` y presenta:
 
 - total de sesiones;
@@ -67,6 +74,8 @@ Lee automáticamente el histórico de sesiones guardado en `resumen_sesiones.csv
 El archivo CSV puede abrirse directamente con Excel.
 
 ## Importar / Exportar
+
+<img width="1784" height="1200" alt="Captura de pantalla 2026-09-14 175641" src="https://github.com/user-attachments/assets/c9a71362-0de3-4b1a-a9e6-fdffb26e3ec2" />
 
 Permite consolidar resultados cuando el juego está instalado de forma independiente en cada computadora.
 
@@ -85,6 +94,8 @@ Flujo sugerido al terminar una etapa o ciclo:
 
 ## Configuración
 
+<img width="1789" height="1206" alt="Captura de pantalla 2026-09-14 175658" src="https://github.com/user-attachments/assets/eea1434a-0dc5-4e50-bff6-6da514d4fcec" />
+
 Permite:
 
 - cambiar el nivel educativo entre Primaria, Secundaria y Prepa;
@@ -94,6 +105,8 @@ Permite:
 La contraseña personalizada **no se almacena en texto plano**. Se guarda mediante **PBKDF2-SHA256 con sal** en el perfil local del equipo.
 
 ## Mantenimiento
+
+<img width="1784" height="1206" alt="Captura de pantalla 2026-09-14 175711" src="https://github.com/user-attachments/assets/cca524bf-457f-467d-87b2-68eca4941a0b" />
 
 Pensado especialmente para el final del ciclo escolar.
 
