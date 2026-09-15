@@ -28,7 +28,6 @@ Los ejercicios son acumulativos: secundaria incluye el contenido de primaria y p
 # Experiencia del estudiante
 
 <img width="2559" height="1565" alt="Captura de pantalla 2026-09-14 175530" src="https://github.com/user-attachments/assets/11e67f3f-d373-4ccd-8732-81cffe945522" />
-<img width="1792" height="1088" alt="Captura de pantalla 2026-09-14 175605" src="https://github.com/user-attachments/assets/a6441eba-0791-4fcd-aef5-e80a74d571b4" />
 
 Al iniciar, el estudiante debe registrar:
 
